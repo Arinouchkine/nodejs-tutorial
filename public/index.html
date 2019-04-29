@@ -19,19 +19,32 @@
             </div>
         </div>
         <script>
-            const mySocket = new WebSocket('ws://localhost:3001');
-            mySocket.onopen = (event) => {
-                console.info('WebSocket connection opened'); 
-                mySocket.send('Message from front-end!'); 
-            };
-            mySocket.onerror = (error) => {
-                console.error('WebSocket error occurs:', error);
-            };
-            mySocket.onmessage = (messageEvent) => {
-                console.info('Message event received from server: ', messageEvent);
+            let user;
+            let mySocket;
+            function connect() {
+                mySocket = new WebSocket('ws://localhost:3001');
+                mySocket.onopen = (event) => {
+                    console.info('WebSocket connection opened'); 
+                    mySocket.send('Message from front-end!'); 
+                };
+                mySocket.onerror = (error) => {
+                    console.error('WebSocket error occurs:', error);
+                };
+                mySocket.onmessage = (messageEvent) => {
+                    console.info('Message event received from server: ', messageEvent);
+                }
+                mySocket.onclose = () => {
+                    console.info('WebSocket connection closed'); 
+                }
             }
-            mySocket.onclose = () => {
-                console.info('WebSocket connection closed'); 
+
+            function connectUser() {
+                user = document.getElementsByName('chat-name')[0].value;
+                if (user) {
+                    connect();
+                    document.getElementsByName('chat-message')[0].disabled = false;
+                    document.getElementsByClassName('chat-send')[0].disabled = false;
+                }
             }
         </script>
     </body>
