@@ -15,7 +15,7 @@
             <div class="chat-content"></div>
             <div class="chat-form">
                 <textarea value="" rows="5" cols="45" name="chat-message" disabled="disabled"></textarea>
-                <button class="chat-send" disabled="disabled">ok</button>
+                <button class="chat-send" disabled="disabled" onclick="sendMessage()">ok</button>
             </div>
         </div>
         <script>
@@ -25,13 +25,15 @@
                 mySocket = new WebSocket('ws://localhost:3001');
                 mySocket.onopen = (event) => {
                     console.info('WebSocket connection opened'); 
-                    mySocket.send('Message from front-end!'); 
                 };
                 mySocket.onerror = (error) => {
                     console.error('WebSocket error occurs:', error);
                 };
                 mySocket.onmessage = (messageEvent) => {
-                    console.info('Message event received from server: ', messageEvent);
+                    console.info('Message event received from server: ', messageEvent.data);
+                    const newDiv = document.createElement('div');
+                    newDiv.append(messageEvent.data);
+                    document.getElementsByClassName('chat-content')[0].append(newDiv);
                 }
                 mySocket.onclose = () => {
                     console.info('WebSocket connection closed'); 
@@ -45,6 +47,12 @@
                     document.getElementsByName('chat-message')[0].disabled = false;
                     document.getElementsByClassName('chat-send')[0].disabled = false;
                 }
+            }
+
+            function sendMessage() {
+                const message = document.getElementsByName('chat-message')[0].value;
+                mySocket.send(message);
+                document.getElementsByName('chat-message')[0].value = '';
             }
         </script>
     </body>
