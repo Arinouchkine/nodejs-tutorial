@@ -24,19 +24,30 @@
             function connect() {
                 mySocket = new WebSocket('ws://localhost:3001');
                 mySocket.onopen = (event) => {
-                    console.info('WebSocket connection opened');
+                    console.info('WebSocket connection opened'); 
                 };
                 mySocket.onerror = (error) => {
                     console.error('WebSocket error occurs:', error);
                 };
                 mySocket.onmessage = (messageEvent) => {
-                    console.info('Message event received from server: ', messageEvent.data);
+                    let data;
+                    try {
+                        data = JSON.parse(messageEvent.data);
+                        // message is an object now!
+                    } catch (e) {
+                        data = messageEvent.data;
+                        //message is a string
+                    }
                     const newDiv = document.createElement('div');
-                    newDiv.append(messageEvent.data);
+                    if (typeof data === 'string') {
+                        newDiv.append(data);
+                    } else {
+                        newDiv.append(`[${data.user}] ${data.message}`);
+                    }
                     document.getElementsByClassName('chat-content')[0].append(newDiv);
                 }
                 mySocket.onclose = () => {
-                    console.info('WebSocket connection closed');
+                    console.info('WebSocket connection closed'); 
                 }
             }
 
@@ -51,7 +62,10 @@
 
             function sendMessage() {
                 const message = document.getElementsByName('chat-message')[0].value;
-                mySocket.send(message);
+                mySocket.send(JSON.stringify({
+                    message,
+                    user
+                }));
                 document.getElementsByName('chat-message')[0].value = '';
             }
         </script>
