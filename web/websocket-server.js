@@ -1,10 +1,20 @@
 const WebSocket = require('ws');
 
-const webSocketServer = new WebSocket.Server({ port: 3001 });
+const wss = new WebSocket.Server({ port: 3001 });
+let tab = [{'user': 'server', 'message': 'Welcom'}];
+// Broadcast to all.
 
-webSocketServer.on('connection', function connection(webSocket) {
-  webSocket.on('message', function incoming(message) {
-    webSocket.send(message);
+wss.on('connection', function connection(ws) {
+  ws.on('message', function incoming(data) {
+
+    tab.push(data);
+    // Broadcast to everyone else.
+    wss.clients.forEach(function each(client) {
+      if (client.readyState === WebSocket.OPEN)
+      {
+        client.send(data);
+      }
+    });
   });
-  webSocket.send('Welcome!');
+  ws.send(JSON.stringify(tab));
 });

@@ -31,6 +31,7 @@
                 };
                 mySocket.onmessage = (messageEvent) => {
                     let data;
+                    console.log(messageEvent.data);
                     try {
                         data = JSON.parse(messageEvent.data);
                         // message is an object now!
@@ -38,12 +39,30 @@
                         data = messageEvent.data;
                         //message is a string
                     }
+                    console.log(data);
                     const newDiv = document.createElement('div');
                     if (typeof data === 'string') {
                         newDiv.append(data);
-                    } else {
+                    }
+                    else if(Array.isArray(data))
+                    {
+                        data.map((elv)=>{
+                            try {
+                                el = JSON.parse(elv);
+                                // message is an object now!
+                            } catch (e) {
+                                el = elv;
+                                //message is a string
+                            }
+                            console.log(el);
+                            newDiv.append(`[${el.user}] ${el.message}`);
+                        });
+                    }
+                    else
+                    {
                         newDiv.append(`[${data.user}] ${data.message}`);
                     }
+
                     document.getElementsByClassName('chat-content')[0].append(newDiv);
                 }
                 mySocket.onclose = () => {
@@ -52,6 +71,10 @@
             }
 
             function connectUser() {
+                if (user)
+                {
+                    mySocket.close();
+                }
                 user = document.getElementsByName('chat-name')[0].value;
                 if (user) {
                     connect();
